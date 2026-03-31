@@ -1,0 +1,135 @@
+<div class="flex h-screen bg-slate-50 overflow-hidden">
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto bg-white">
+    <header class="flex items-center justify-end p-6 gap-4">
+      <button class="p-2 text-slate-400 hover:text-slate-600">
+        <mat-icon>notifications</mat-icon>
+      </button>
+      <button class="p-2 text-slate-400 hover:text-slate-600">
+        <mat-icon>settings</mat-icon>
+      </button>
+      <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-200">
+        <img src="https://picsum.photos/seed/user/32/32" alt="User" referrerpolicy="no-referrer">
+      </div>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-8 py-4">
+      <h2 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+        Generate diagram understanding
+      </h2>
+      <p class="text-slate-500 text-lg mb-10 leading-relaxed">
+        Upload your architectural diagrams or workflow charts for deep structural analysis and automated documentation.
+      </p>
+
+      <div class="grid grid-cols-2 gap-6 mb-8">
+        <!-- Upload Box -->
+        <div class="aspect-square border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 bg-slate-50/50 hover:bg-slate-50 transition-colors cursor-pointer group">
+          <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
+            <mat-icon class="text-3xl">add_photo_alternate</mat-icon>
+          </div>
+          <p class="text-slate-900 font-semibold mb-1">Click to upload image</p>
+          <p class="text-slate-400 text-xs">PNG, JPG up to 10MB</p>
+        </div>
+
+        <!-- Context Files -->
+        <div class="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+          <div class="flex items-center gap-2 mb-4">
+            <mat-icon class="text-indigo-600 text-lg">link</mat-icon>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Context Files</h3>
+          </div>
+          
+          <div class="space-y-3">
+            @for (file of contextFiles(); track file.name) {
+              <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center" [ngClass]="file.type === 'pdf' ? 'bg-orange-50 text-orange-600' : 'bg-amber-50 text-amber-600'">
+                  <mat-icon>{{ file.type === 'pdf' ? 'description' : 'table_view' }}</mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-slate-900 truncate">{{ file.name }}</p>
+                  <p class="text-[10px] text-slate-400">{{ file.size }}</p>
+                </div>
+                <button (click)="removeFile(file.name)" class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                  <mat-icon class="text-sm">close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <button class="w-full mt-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full text-xs font-bold transition-colors">
+            Browse all files
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-12">
+        <div class="flex items-center gap-2 mb-4">
+          <mat-icon class="text-slate-400 text-lg">subject</mat-icon>
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Context Information</h3>
+        </div>
+        <textarea 
+          class="w-full h-40 p-6 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-600 placeholder:text-slate-300 transition-all resize-none"
+          placeholder="Describe the context of the diagram. What are the key components we should focus on? Are there specific business rules to validate against?"></textarea>
+      </div>
+
+      <button 
+        (click)="startAnalysis()"
+        [disabled]="isAnalyzing()"
+        class="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-indigo-100 transition-all active:scale-95">
+        @if (isAnalyzing()) {
+          <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+          Analyzing...
+        } @else {
+          Start analysis
+          <mat-icon class="text-xl">bolt</mat-icon>
+        }
+      </button>
+    </div>
+  </main>
+
+  <!-- Right Sidebar -->
+  <aside class="w-96 bg-slate-50 border-l border-slate-200 p-8 flex flex-col">
+    <div class="mb-8">
+      <span class="px-3 py-1 bg-indigo-100 text-indigo-600 text-[10px] font-bold rounded-md uppercase tracking-widest flex items-center gap-1.5 w-fit">
+        <mat-icon class="text-xs">auto_awesome</mat-icon>
+        AI ENGINE READY
+      </span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-4 leading-tight">
+        AI Diagram understanding summary
+      </h2>
+    </div>
+
+    <div class="flex-1 bg-slate-100/50 rounded-3xl border border-slate-200/50 flex flex-col items-center justify-center p-12 text-center">
+      @if (!hasAnalysis()) {
+        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mb-6">
+          <mat-icon class="text-3xl">psychology</mat-icon>
+        </div>
+        <h3 class="text-slate-900 font-bold mb-3">No analysis yet</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">
+          Upload a diagram and click "Start Analysis" to see the AI's structural breakdown and insights here.
+        </p>
+      } @else {
+        <div class="w-full text-left space-y-6">
+          <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+            <h4 class="text-xs font-bold text-indigo-600 uppercase mb-2">Structural Overview</h4>
+            <p class="text-sm text-slate-600">The diagram represents a microservices architecture with a centralized API Gateway and distributed data stores.</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+            <h4 class="text-xs font-bold text-indigo-600 uppercase mb-2">Key Components</h4>
+            <ul class="text-sm text-slate-600 list-disc list-inside space-y-1">
+              <li>Auth Service (Node.js)</li>
+              <li>Inventory Manager</li>
+              <li>PostgreSQL Cluster</li>
+            </ul>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="mt-8 flex justify-end">
+      <button class="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
+        <mat-icon class="text-lg">save</mat-icon>
+        Save
+      </button>
+    </div>
+  </aside>
+</div>
